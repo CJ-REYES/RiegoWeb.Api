@@ -1,0 +1,82 @@
+# Ignora archivos binarios y de compilación
+[Bb]in/
+[Oo]bj/
+
+# Ignora archivos de usuario específicos
+*.user
+*.suo
+*.userprefs
+
+# Ignora archivos de configuración local
+appsettings.Development.json
+appsettings.Local.json
+
+# Ignora archivos de logs y datos generados en tiempo de ejecución
+[Ll]ogs/
+*.log
+
+# Ignora archivos de NuGet
+.nuget/
+*.nupkg
+nuget.exe
+
+# Ignora paquetes de Node.js (si usas frontend o herramientas basadas en Node)
+node_modules/
+
+# Ignora archivos de IDE/Editor
+.vs/
+.idea/
+*.swp
+*.swo
+
+# Ignora archivos de Docker
+docker-compose.override.yml
+docker-compose.vs.debug.yml
+docker-compose.vs.release.yml
+
+# Ignora archivos de pruebas
+[Tt]est[Rr]esults/
+*.testsettings
+
+# Ignora archivos de ReSharper
+_ReSharper.*
+*.ReSharper
+
+# Ignora archivos de Rider
+.idea/
+*.sln.iml
+
+# Ignora archivos de Visual Studio Code
+.vscode/
+
+# Ignora archivos de Azure Functions
+func.exe
+.python_packages/
+
+# Ignora archivos de SQL Server
+*.mdf
+*.ldf
+
+# Ignora archivos de caché de .NET
+/.localhistory/
+
+# Ignora archivos de publicación
+publish/
+
+# Ignora archivos de migraciones de Entity Framework Core
+/Migrations/
+
+# Ignora archivos de configuración de Rider
+*.DotSettings
+
+# Ignora archivos de configuración de dotnet tools
+.dotnet/
+tools/
+
+# Ignora archivos de configuración de Docker
+.dockerignore
+Dockerfile
+docker-compose.yml
+
+# Ignora archivos de configuración de Azure
+.azure/
