@@ -12,6 +12,7 @@ namespace RiegoWeb.Api.Models
         public required string Temperatura { get; set; }
         public required string Humedad { get; set; }
         public required string LuzNivel { get; set; }
+        public ICollection<MyModulos> MyModulos { get; set; } = new List<MyModulos>();
 
     }
 }

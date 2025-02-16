@@ -11,11 +11,11 @@ namespace RiegoWeb.Api.Models
 
     public int Id_User { get; set; }
     
-    public User User { get; set; }
+    public required User User { get; set; }
 
     public int Id_Modulo { get; set; }
     
-    public Modulos Modulo { get; set; }
+    public required Modulos Modulo { get; set; }
 
     }
 }

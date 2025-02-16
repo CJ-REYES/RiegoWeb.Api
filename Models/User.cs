@@ -11,7 +11,7 @@ public class User
     public required string Email { get; set; }
     public required string Password { get; set; }
  
-    //public ICollection<MyModulo> MyModulo { get; set; }
+    public  ICollection<MyModulos> MyModulo { get; set; }
 
 }
 }
