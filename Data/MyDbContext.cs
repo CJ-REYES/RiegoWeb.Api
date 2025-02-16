@@ -15,7 +15,9 @@ namespace RiegoWeb.Api.Data
         public DbSet<User> Users { get; set; }
         public DbSet<Modulos> Modulo { get; set; }
         public DbSet<MyModulos> MyModulo { get; set; }
-protected override void OnModelCreating(ModelBuilder modelBuilder)
+        public object Modulos { get; internal set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
 {
 
     modelBuilder.Entity<User>()
