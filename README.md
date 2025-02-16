@@ -71,3 +71,25 @@ _¡Inico de proyecto de gestion de Iot!_ 🚀
 
 ## Estructura del Backend
 
+- El backend está organizado de la siguiente manera:
+
+1. Controladores
+
+- MyModulosControllers: Gestiona las operaciones CRUD para los dispositivos IoT pertenecientes a los Usuarios.
+
+- ModuloControllers: Recibe datos de los dispositivos IoT (Arduino) y los almacena en la base de datos.
+
+- UsuariosController: Gestiona la autenticación y autorización de usuarios.
+
+2. Modelos
+- MyModulo: Representa un dispositivo IoT pertenecientes al Usuario.
+
+- Modulos: Representa los datos enviados por los dispositivos IoT.
+
+- Usuario: Representa un usuario del sistema.
+
+3. DbContext
+- MyDbContext: Configura la conexión a la base de datos y define las tablas.
+
+4. Migraciones
+- Las migraciones de Entity Framework Core se utilizan para crear y actualizar la base de datos.
