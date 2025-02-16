@@ -1,7 +1,12 @@
 using System;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Text.Json.Serialization;
+
+
+
 
 namespace RiegoWeb.Api.Models
 {
@@ -12,6 +17,7 @@ namespace RiegoWeb.Api.Models
         public required string Temperatura { get; set; }
         public required string Humedad { get; set; }
         public required string LuzNivel { get; set; }
+        [JsonIgnore]
         public ICollection<MyModulos> MyModulos { get; set; } = new List<MyModulos>();
 
     }

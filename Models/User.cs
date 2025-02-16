@@ -1,17 +1,21 @@
-using System.ComponentModel.DataAnnotations;
+using System.Collections.Generic;
 using System.Text.Json.Serialization;
+using RiegoWeb.Api.Models;
 
-namespace RiegoWeb.Api.Models{
+    
 
-public class User
+
+namespace RiegoWeb.Api.Models
 {
-    public int Id_User { get; set; }
-    public required string Name { get; set; }
-    [EmailAddress]
-    public required string Email { get; set; }
-    public required string Password { get; set; }
- 
-    public  ICollection<MyModulos> MyModulo { get; set; }
+    public class User
+    {
+        public int Id_User { get; set; }
+        
+        public required string Name { get; set; }
+        public required string Email { get; set; }
+        public required string Password { get; set; }
 
-}
+        [JsonIgnore] 
+        public ICollection<MyModulos>? MyModulos { get; set; }
+    }
 }

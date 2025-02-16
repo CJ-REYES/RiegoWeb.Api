@@ -2,6 +2,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using RiegoWeb.Api.Models;
 
+
+
 namespace RiegoWeb.Api.Data
 {
     public class MyDbContext : DbContext
@@ -27,7 +29,7 @@ protected override void OnModelCreating(ModelBuilder modelBuilder)
     // Relación entre MyModulo y User
     modelBuilder.Entity<MyModulos>()
         .HasOne(m => m.User) // MyModulo tiene un User
-        .WithMany(u => u.MyModulo) // User tiene muchos MyModulo
+        .WithMany(u => u.MyModulos) // User tiene muchos MyModulo
         .HasForeignKey(m => m.Id_User) ;// Clave foránea en MyModulo
        
     // Relación entre MyModulo y Modulos
