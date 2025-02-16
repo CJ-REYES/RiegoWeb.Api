@@ -12,6 +12,17 @@ builder.Services.AddDbContext<MyDbContext>(options =>
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString))
 );
 
+// Configuración de CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+});
+
 // Agrega soporte para controladores (necesario para una Web API)
 builder.Services.AddControllers();
 
@@ -32,5 +43,8 @@ app.UseHttpsRedirection();
 
 // Habilita el enrutamiento de controladores
 app.MapControllers();
+
+// Habilitar CORS
+app.UseCors("AllowAll");
 
 app.Run();
