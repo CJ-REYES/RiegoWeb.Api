@@ -64,7 +64,7 @@ func.exe
 publish/
 
 # Ignora archivos de migraciones de Entity Framework Core
-/Migrations/
+
 
 # Ignora archivos de configuración de Rider
 *.DotSettings
