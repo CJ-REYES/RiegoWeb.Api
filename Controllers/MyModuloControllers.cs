@@ -10,56 +10,65 @@ namespace RiegoWeb.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class ModulosController : ControllerBase
+    public class MyModuloControllers : ControllerBase
     {
         private readonly MyDbContext _context;
 
-        public ModulosController(MyDbContext context)
+        public MyModuloControllers(MyDbContext context)
         {
             _context = context;
         }
 
         // GET: api/Modulos
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Modulos>>> GetModulos()
+        public async Task<ActionResult<IEnumerable<MyModulos>>> GetMyModulos()
         {
-            return await _context.Modulos.ToListAsync();
+            return await _context.MyModulos.ToListAsync();
         }
 
         // GET: api/Modulos/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Modulos>> GetModulo(int id)
+        public async Task<ActionResult<MyModulos>> GetMyModulo(int id)
         {
-            var modulo = await _context.Modulos.FindAsync(id);
+            var myModulos = await _context.MyModulos.FindAsync(id);
 
-            if (modulo == null)
+            if (myModulos == null)
             {
                 return NotFound(new { message = "Módulo no encontrado." });
             }
 
-            return modulo;
+            return myModulos;
         }
 
         // POST: api/Modulos
-        [HttpPost]
-        public async Task<ActionResult<Modulos>> CrearModulo(Modulos modulo)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(new { message = "Datos del módulo no válidos." });
-            }
+     [HttpPost]
+public async Task<ActionResult<MyModulos>> CrearMyModulo([FromBody] MyModulosRequest request)
+{
+    if (!ModelState.IsValid)
+    {
+        return BadRequest(new { message = "Datos del módulo no válidos." });
+    }
 
-            _context.Modulos.Add(modulo);
-            await _context.SaveChangesAsync();
+    // Crear un nuevo objeto MyModulos usando los identificadores
+    var myModulo = new MyModulos
+    {
+        Id_User = request.Id_User,
+        Id_Modulo = request.Id_Modulo
+    };
 
-            return CreatedAtAction(nameof(GetModulo), new { id = modulo.Id_Modulos }, modulo);
-        }
+    _context.MyModulos.Add(myModulo);
+    await _context.SaveChangesAsync();
+
+    return CreatedAtAction(nameof(GetMyModulo), new { id = myModulo.IdMyModulo }, myModulo);
+}
+
+
 
         // PUT: api/Modulos/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> ActualizarModulo(int id, Modulos modulo)
+        public async Task<IActionResult> ActualizarMyModulo(int id, MyModulos myModulos)
         {
-            if (id != modulo.Id_Modulos)
+            if (id != myModulos.IdMyModulo)
             {
                 return BadRequest(new { message = "El ID del módulo no coincide con el de la URL." });
             }
@@ -69,7 +78,7 @@ namespace RiegoWeb.Api.Controllers
                 return BadRequest(new { message = "Datos del módulo no válidos." });
             }
 
-            _context.Entry(modulo).State = EntityState.Modified;
+            _context.Entry(myModulos).State = EntityState.Modified;
 
             try
             {
@@ -77,7 +86,7 @@ namespace RiegoWeb.Api.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!ModuloExists(id))
+                if (!MyModuloExists(id))
                 {
                     return NotFound(new { message = "Módulo no encontrado." });
                 }
@@ -92,24 +101,24 @@ namespace RiegoWeb.Api.Controllers
 
         // DELETE: api/Modulos/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> EliminarModulo(int id)
+        public async Task<IActionResult> EliminarMyModulo(int id)
         {
-            var modulo = await _context.Modulos.FindAsync(id);
-            if (modulo == null)
+            var myModulos = await _context.MyModulos.FindAsync(id);
+            if (myModulos == null)
             {
                 return NotFound(new { message = "Módulo no encontrado." });
             }
 
-            _context.Modulos.Remove(modulo);
+            _context.MyModulos.Remove(myModulos);
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
         // Método auxiliar para verificar si el módulo existe
-        private bool ModuloExists(int id)
+        private bool MyModuloExists(int id)
         {
-            return _context.Modulos.Any(e => e.Id_Modulos == id);
+            return _context.MyModulos.Any(e => e.IdMyModulo == id);
         }
     }
 }

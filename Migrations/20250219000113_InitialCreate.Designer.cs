@@ -11,7 +11,7 @@ using RiegoWeb.Api.Data;
 namespace RiegoWeb.Api.Migrations
 {
     [DbContext(typeof(MyDbContext))]
-    [Migration("20250216032544_InitialCreate")]
+    [Migration("20250219000113_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -46,7 +46,7 @@ namespace RiegoWeb.Api.Migrations
 
                     b.HasKey("Id_Modulos");
 
-                    b.ToTable("Modulo");
+                    b.ToTable("Modulos");
                 });
 
             modelBuilder.Entity("RiegoWeb.Api.Models.MyModulos", b =>
@@ -69,7 +69,7 @@ namespace RiegoWeb.Api.Migrations
 
                     b.HasIndex("Id_User");
 
-                    b.ToTable("MyModulo");
+                    b.ToTable("MyModulos");
                 });
 
             modelBuilder.Entity("RiegoWeb.Api.Models.User", b =>
@@ -100,13 +100,13 @@ namespace RiegoWeb.Api.Migrations
             modelBuilder.Entity("RiegoWeb.Api.Models.MyModulos", b =>
                 {
                     b.HasOne("RiegoWeb.Api.Models.Modulos", "Modulo")
-                        .WithMany("MyModulos")
+                        .WithMany()
                         .HasForeignKey("Id_Modulo")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("RiegoWeb.Api.Models.User", "User")
-                        .WithMany("MyModulo")
+                        .WithMany()
                         .HasForeignKey("Id_User")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -114,16 +114,6 @@ namespace RiegoWeb.Api.Migrations
                     b.Navigation("Modulo");
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("RiegoWeb.Api.Models.Modulos", b =>
-                {
-                    b.Navigation("MyModulos");
-                });
-
-            modelBuilder.Entity("RiegoWeb.Api.Models.User", b =>
-                {
-                    b.Navigation("MyModulo");
                 });
 #pragma warning restore 612, 618
         }

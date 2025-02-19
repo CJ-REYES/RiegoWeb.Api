@@ -28,18 +28,21 @@ namespace RiegoWeb.Api.Controllers
         }
 
         // GET: api/Usuario/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<User>> GetUsuario(int id)
-        {
-            var usuario = await _context.Users.FindAsync(id);
+        [HttpGet("usuario/{id}")]
+public async Task<ActionResult<IEnumerable<MyModulos>>> GetMyModulosPorUsuario(int id)
+{
+    var myModulos = await _context.MyModulos
+                                   .Where(m => m.Id_User == id)
+                                   .ToListAsync();
 
-            if (usuario == null)
-            {
-                return NotFound(new { message = "Usuario no encontrado." });
-            }
+    if (myModulos == null || !myModulos.Any())
+    {
+        return NotFound(new { message = "No se encontraron módulos para este usuario." });
+    }
 
-            return usuario;
-        }
+    return myModulos;
+}
+
 
         // POST: api/Usuario
         [HttpPost]
@@ -53,7 +56,7 @@ namespace RiegoWeb.Api.Controllers
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetUsuario), new { id = user.Id_User }, user);
+            return CreatedAtAction(nameof(GetUsuarios), new { id = user.Id_User }, user);
         }
 
         // PUT: api/Usuario/5

@@ -6,45 +6,46 @@ using RiegoWeb.Api.Models;
 
 namespace RiegoWeb.Api.Data
 {
-    public class MyDbContext : DbContext
-    {
-        public MyDbContext(DbContextOptions<MyDbContext> options) : base(options)
-        {
-        }
-
-        public DbSet<User> Users { get; set; }
-        public DbSet<Modulos> Modulo { get; set; }
-        public DbSet<MyModulos> MyModulo { get; set; }
-        public object Modulos { get; internal set; }
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
+   public class MyDbContext : DbContext
 {
+    public MyDbContext(DbContextOptions<MyDbContext> options) : base(options) { }
 
-    modelBuilder.Entity<User>()
-          .HasKey(u=>u.Id_User);
-    modelBuilder.Entity<Modulos>()
-          .HasKey(u=>u.Id_Modulos);
-   modelBuilder.Entity<MyModulos>()
-          .HasKey(u=>u.IdMyModulo);
+    public DbSet<User> Users { get; set; }
+    public DbSet<Modulos> Modulos { get; set; }
+    public DbSet<MyModulos> MyModulos { get; set; }
+// 💡 Aquí estaba el posible error, debe llamarse MyModulos
 
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        // Configuración de la tabla User
+        modelBuilder.Entity<User>()
+            .HasKey(u => u.Id_User);
 
-    // Relación entre MyModulo y User
-    modelBuilder.Entity<MyModulos>()
-        .HasOne(m => m.User) // MyModulo tiene un User
-        .WithMany(u => u.MyModulos) // User tiene muchos MyModulo
-        .HasForeignKey(m => m.Id_User) ;// Clave foránea en MyModulo
-       
-    // Relación entre MyModulo y Modulos
-    modelBuilder.Entity<MyModulos>()
+        // Configuración de la tabla Modulo
+        modelBuilder.Entity<Modulos>()
+            .HasKey(m => m.Id_Modulos);
 
-        .HasOne(m => m.Modulo) // MyModulo tiene un Modulo
-        .WithMany(mod => mod.MyModulos) // Modulos tiene muchos MyModulo
-        .HasForeignKey(m => m.Id_Modulo);
+        // Configuración de la tabla MyModulo
+        modelBuilder.Entity<MyModulos>()
+            .HasKey(mm => mm.IdMyModulo);
 
+        // Relación MyModulo -> User (Muchos a Uno)
+        modelBuilder.Entity<MyModulos>()
+            .HasOne(mm => mm.User)
+            .WithMany()
+            .HasForeignKey(mm => mm.Id_User)
+            .OnDelete(DeleteBehavior.Cascade);
 
+        // Relación MyModulo -> Modulo (Muchos a Uno)
+        modelBuilder.Entity<MyModulos>()
+            .HasOne(mm => mm.Modulo)
+            .WithMany()
+            .HasForeignKey(mm => mm.Id_Modulo)
+            .OnDelete(DeleteBehavior.Cascade);
 
-        
+        base.OnModelCreating(modelBuilder);
+    }
 }
-}
+
 
 }

@@ -15,7 +15,7 @@ namespace RiegoWeb.Api.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "Modulo",
+                name: "Modulos",
                 columns: table => new
                 {
                     Id_Modulos = table.Column<int>(type: "int", nullable: false)
@@ -29,7 +29,7 @@ namespace RiegoWeb.Api.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Modulo", x => x.Id_Modulos);
+                    table.PrimaryKey("PK_Modulos", x => x.Id_Modulos);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -53,7 +53,7 @@ namespace RiegoWeb.Api.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "MyModulo",
+                name: "MyModulos",
                 columns: table => new
                 {
                     IdMyModulo = table.Column<int>(type: "int", nullable: false)
@@ -63,15 +63,15 @@ namespace RiegoWeb.Api.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_MyModulo", x => x.IdMyModulo);
+                    table.PrimaryKey("PK_MyModulos", x => x.IdMyModulo);
                     table.ForeignKey(
-                        name: "FK_MyModulo_Modulo_Id_Modulo",
+                        name: "FK_MyModulos_Modulos_Id_Modulo",
                         column: x => x.Id_Modulo,
-                        principalTable: "Modulo",
+                        principalTable: "Modulos",
                         principalColumn: "Id_Modulos",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_MyModulo_Users_Id_User",
+                        name: "FK_MyModulos_Users_Id_User",
                         column: x => x.Id_User,
                         principalTable: "Users",
                         principalColumn: "Id_User",
@@ -80,13 +80,13 @@ namespace RiegoWeb.Api.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateIndex(
-                name: "IX_MyModulo_Id_Modulo",
-                table: "MyModulo",
+                name: "IX_MyModulos_Id_Modulo",
+                table: "MyModulos",
                 column: "Id_Modulo");
 
             migrationBuilder.CreateIndex(
-                name: "IX_MyModulo_Id_User",
-                table: "MyModulo",
+                name: "IX_MyModulos_Id_User",
+                table: "MyModulos",
                 column: "Id_User");
         }
 
@@ -94,10 +94,10 @@ namespace RiegoWeb.Api.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "MyModulo");
+                name: "MyModulos");
 
             migrationBuilder.DropTable(
-                name: "Modulo");
+                name: "Modulos");
 
             migrationBuilder.DropTable(
                 name: "Users");

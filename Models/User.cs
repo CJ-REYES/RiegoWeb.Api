@@ -15,7 +15,7 @@ namespace RiegoWeb.Api.Models
         public required string Email { get; set; }
         public required string Password { get; set; }
 
-        [JsonIgnore] 
-        public ICollection<MyModulos>? MyModulos { get; set; }
+       
+        
     }
 }
