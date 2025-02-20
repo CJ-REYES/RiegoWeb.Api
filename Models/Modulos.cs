@@ -13,6 +13,7 @@ namespace RiegoWeb.Api.Models
     public class Modulos
     {
         public int Id_Modulos { get; set; }
+        public required string Name { get; set; }
         
         public required string Temperatura { get; set; }
         public required string Humedad { get; set; }

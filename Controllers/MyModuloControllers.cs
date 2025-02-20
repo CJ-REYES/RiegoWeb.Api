@@ -53,7 +53,8 @@ public async Task<ActionResult<MyModulos>> CrearMyModulo([FromBody] MyModulosReq
     var myModulo = new MyModulos
     {
         Id_User = request.Id_User,
-        Id_Modulo = request.Id_Modulo
+        Id_Modulo = request.Id_Modulo,
+        Name = "My Modulo"
     };
 
     _context.MyModulos.Add(myModulo);
