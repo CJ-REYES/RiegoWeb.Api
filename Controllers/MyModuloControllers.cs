@@ -54,7 +54,7 @@ public async Task<ActionResult<MyModulos>> CrearMyModulo([FromBody] MyModulosReq
     {
         Id_User = request.Id_User,
         Id_Modulo = request.Id_Modulo,
-        Name = "My Modulo"
+        Name = "Mi Modulo"
     };
 
     _context.MyModulos.Add(myModulo);
@@ -65,21 +65,22 @@ public async Task<ActionResult<MyModulos>> CrearMyModulo([FromBody] MyModulosReq
 
 
 
-        // PUT: api/Modulos/5
-        [HttpPut("{id}")]
-        public async Task<IActionResult> ActualizarMyModulo(int id, MyModulos myModulos)
+       [HttpPut("{id}")]
+        public async Task<IActionResult> ActualizarMyModulo(int id, [FromBody] MyModulosRequest request)
         {
-            if (id != myModulos.IdMyModulo)
-            {
-                return BadRequest(new { message = "El ID del módulo no coincide con el de la URL." });
-            }
-
             if (!ModelState.IsValid)
             {
                 return BadRequest(new { message = "Datos del módulo no válidos." });
             }
 
-            _context.Entry(myModulos).State = EntityState.Modified;
+            var myModulo = await _context.MyModulos.FindAsync(id);
+            if (myModulo == null)
+            {
+                return NotFound(new { message = "Módulo no encontrado." });
+            }
+
+            // Actualizar los valores permitidos
+            myModulo.Name = request.Name; // Si deseas que el nombre sea personalizable, usa request.Name
 
             try
             {
@@ -97,7 +98,7 @@ public async Task<ActionResult<MyModulos>> CrearMyModulo([FromBody] MyModulosReq
                 }
             }
 
-            return NoContent();
+            return Ok(myModulo);
         }
 
         // DELETE: api/Modulos/5
