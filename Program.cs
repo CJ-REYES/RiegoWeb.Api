@@ -1,38 +1,41 @@
 using Microsoft.EntityFrameworkCore;
-using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
-using RiegoWeb.Api.Data; // Asegúrate de que este using esté presente
+using RiegoWeb.Api.Data; // Asegúrate de importar este namespace para RandomDataHub
+using Microsoft.AspNetCore.SignalR;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configuración de servicios
+// Configuración de la conexión a MySQL
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-
-// Configura el DbContext para MySQL
 builder.Services.AddDbContext<MyDbContext>(options =>
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString))
 );
 
-// Configuración de CORS
+// Registrar RandomDataHub en el contenedor de dependencias
+builder.Services.AddScoped<RandomDataHub>();  // Registrar RandomDataHub aquí
+
+// Configuración de CORS (con WebSockets habilitados)
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
     {
-        policy.AllowAnyOrigin()
+        policy.WithOrigins("http://localhost:5173", "https://localhost:5173") // ⚠ Ajusta esto según tu frontend
               .AllowAnyMethod()
-              .AllowAnyHeader();
+              .AllowAnyHeader()
+              .AllowCredentials(); // Permite credenciales (necesario para SignalR)
     });
 });
 
-// Agrega soporte para controladores (necesario para una Web API)
+// Agrega controladores (para API)
 builder.Services.AddControllers();
+builder.Services.AddSignalR(); // Necesario para SignalR
 
-// Configura Swagger para documentar la API
+// Configura Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Configura el pipeline de solicitudes HTTP
+// Configura el pipeline de middleware
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -41,10 +44,16 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-// Habilita el enrutamiento de controladores
-app.MapControllers();
-
-// Habilitar CORS
+// Habilita CORS antes de los controladores
 app.UseCors("AllowAll");
+
+// Habilita enrutamiento de controladores y SignalR
+app.UseRouting();
+app.UseAuthorization();
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapControllers();
+    endpoints.MapHub<RandomDataHub>("/randomDataHub"); // ✅ SignalR aquí
+});
 
 app.Run();
