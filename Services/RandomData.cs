@@ -22,7 +22,7 @@ public class RandomDataHub : Hub
         {
             var modulo = new Modulos
             {
-                Id_Modulos = _random.Next(1, 10000),  // ID aleatorio (o usa autoincremental en la BD)
+                  // ID aleatorio (o usa autoincremental en la BD)
                 Name = $"Modulo_{_random.Next(1, 1000)}",
                 Temperatura = $"{_random.Next(15, 40)}°C",
                 Humedad = $"{_random.Next(30, 80)}%",
