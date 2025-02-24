@@ -1,33 +1,42 @@
 using Microsoft.EntityFrameworkCore;
-using RiegoWeb.Api.Data; // Asegúrate de importar este namespace para RandomDataHub
+using RiegoWeb.Api.Data;
 using Microsoft.AspNetCore.SignalR;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configuración de la conexión a MySQL
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-builder.Services.AddDbContext<MyDbContext>(options =>
-    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString))
-);
+// Configuración de la conexión a MySQL con manejo de errores
+try
+{
+    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+    builder.Services.AddDbContext<MyDbContext>(options =>
+        options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString))
+               .LogTo(Console.WriteLine, LogLevel.Information) // Habilita logs de EF
+    );
+}
+catch (Exception ex)
+{
+    Console.WriteLine($"Error al conectar a la BD: {ex.Message}");
+}
 
 // Registrar RandomDataHub en el contenedor de dependencias
-builder.Services.AddScoped<RandomDataHub>();  // Registrar RandomDataHub aquí
+builder.Services.AddScoped<RandomDataHub>();
 
-// Configuración de CORS (con WebSockets habilitados)
+// Configuración de CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
     {
-        policy.WithOrigins("http://localhost:5173", "https://localhost:5173") // ⚠ Ajusta esto según tu frontend
+        policy.SetIsOriginAllowed(origin => new Uri(origin).Host == "localhost")
               .AllowAnyMethod()
               .AllowAnyHeader()
-              .AllowCredentials(); // Permite credenciales (necesario para SignalR)
+              .WithOrigins("http://localhost:5149", "https://localhost:5149")
+              .AllowCredentials();
     });
 });
 
-// Agrega controladores (para API)
+// Agrega controladores y SignalR
 builder.Services.AddControllers();
-builder.Services.AddSignalR(); // Necesario para SignalR
+builder.Services.AddSignalR();
 
 // Configura Swagger
 builder.Services.AddEndpointsApiExplorer();
@@ -35,14 +44,28 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+// Middleware global para capturar errores y evitar error 500 sin logs
+app.Use(async (context, next) =>
+{
+    try
+    {
+        await next();
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Error interno del servidor: {ex.Message}");
+        context.Response.StatusCode = 500;
+        await context.Response.WriteAsync("Error interno del servidor");
+    }
+});
+
 // Configura el pipeline de middleware
 if (app.Environment.IsDevelopment())
 {
+    app.UseDeveloperExceptionPage();
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
-app.UseHttpsRedirection();
 
 // Habilita CORS antes de los controladores
 app.UseCors("AllowAll");
@@ -50,10 +73,8 @@ app.UseCors("AllowAll");
 // Habilita enrutamiento de controladores y SignalR
 app.UseRouting();
 app.UseAuthorization();
-app.UseEndpoints(endpoints =>
-{
-    endpoints.MapControllers();
-    endpoints.MapHub<RandomDataHub>("/randomDataHub"); // ✅ SignalR aquí
-});
+
+app.MapControllers();
+app.MapHub<RandomDataHub>("/randomDataHub");
 
 app.Run();
