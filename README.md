@@ -93,3 +93,21 @@ _¡Inico de proyecto de gestion de Iot!_ 🚀
 
 4. Migraciones
 - Las migraciones de Entity Framework Core se utilizan para crear y actualizar la base de datos.
+46. se cambio la estructura del los `Modelos`. para que funcione el proyecto necesitas hacer lo siguente
+-  Borrar la base datos
+```sh
+   MySql -u root
+   show database
+   drop database  RiegoWebApidb
+   ```
+- Crear la base datos nuevamente
+```sh
+   Create Database RiegoWebApi
+   ```
+- Actualizar la base datos
+```sh
+  dotnet ef database update
+   ```
+47. se creo el modelo `MyModuloRequest.cs` el  cual se utilizo para simplifacar el Json del controllers `MyModulosControllers`
+48. se creo un nueva carpeta  llamada services donde esta  `RandomData.cs` para generar datos aleatorios.
+ 50. para generar datos aleatoreos se  modofico el controllers de modulos para  generar datos random,donde se encuentra el metodo post llamado generar o referenciado con `Api/Modulos/Generar`.
