@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using RiegoWeb.Api.Data;
 using RiegoWeb.Api.Models;
@@ -19,108 +20,127 @@ namespace RiegoWeb.Api.Controllers
             _context = context;
         }
 
-        // GET: api/Modulos
+        // GET: api/MyModulos (Obtener todos los módulos del usuario autenticado)
         [HttpGet]
         public async Task<ActionResult<IEnumerable<MyModulos>>> GetMyModulos()
         {
-            return await _context.MyModulos.ToListAsync();
+            var userId = ObtenerIdUsuarioAutenticado();
+            if (userId == null)
+            {
+                return Unauthorized(new { message = "Usuario no autenticado." });
+            }
+
+            return await _context.MyModulos
+                                 .Where(m => m.Id_User == userId)
+                                 .ToListAsync();
         }
 
-        // GET: api/Modulos/5
+        // GET: api/MyModulos/5
         [HttpGet("{id}")]
         public async Task<ActionResult<MyModulos>> GetMyModulo(int id)
         {
-            var myModulos = await _context.MyModulos.FindAsync(id);
-
-            if (myModulos == null)
+            var userId = ObtenerIdUsuarioAutenticado();
+            if (userId == null)
             {
-                return NotFound(new { message = "Módulo no encontrado." });
+                return Unauthorized(new { message = "Usuario no autenticado." });
             }
 
-            return myModulos;
+            var myModulo = await _context.MyModulos
+                                         .Where(m => m.IdMyModulo == id && m.Id_User == userId)
+                                         .FirstOrDefaultAsync();
+
+            if (myModulo == null)
+            {
+                return NotFound(new { message = "Módulo no encontrado o no pertenece al usuario." });
+            }
+
+            return myModulo;
         }
 
-        // POST: api/Modulos
-     [HttpPost]
-public async Task<ActionResult<MyModulos>> CrearMyModulo([FromBody] MyModulosRequest request)
-{
-    if (!ModelState.IsValid)
-    {
-        return BadRequest(new { message = "Datos del módulo no válidos." });
-    }
+        // POST: api/MyModulos (Crear módulo para el usuario autenticado)
+        [HttpPost]
+        public async Task<ActionResult<MyModulos>> CrearMyModulo([FromBody] MyModulosRequest request)
+        {
+            var userId = ObtenerIdUsuarioAutenticado();
+            if (userId == null)
+            {
+                return Unauthorized(new { message = "Usuario no autenticado." });
+            }
 
-    // Crear un nuevo objeto MyModulos usando los identificadores
-    var myModulo = new MyModulos
-    {
-        Id_User = request.Id_User,
-        Id_Modulo = request.Id_Modulo,
-        Name = "Mi Modulo"
-    };
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new { message = "Datos del módulo no válidos." });
+            }
 
-    _context.MyModulos.Add(myModulo);
-    await _context.SaveChangesAsync();
+            var myModulo = new MyModulos
+            {
+                Id_User = userId.Value, // Se asigna automáticamente el usuario autenticado
+                Id_Modulo = request.Id_Modulo,
+                Name = request.Name
+            };
 
-    return CreatedAtAction(nameof(GetMyModulo), new { id = myModulo.IdMyModulo }, myModulo);
-}
+            _context.MyModulos.Add(myModulo);
+            await _context.SaveChangesAsync();
 
+            return CreatedAtAction(nameof(GetMyModulo), new { id = myModulo.IdMyModulo }, myModulo);
+        }
 
-
-       [HttpPut("{id}")]
+        // PUT: api/MyModulos/5
+        [HttpPut("{id}")]
         public async Task<IActionResult> ActualizarMyModulo(int id, [FromBody] MyModulosRequest request)
         {
+            var userId = ObtenerIdUsuarioAutenticado();
+            if (userId == null)
+            {
+                return Unauthorized(new { message = "Usuario no autenticado." });
+            }
+
             if (!ModelState.IsValid)
             {
                 return BadRequest(new { message = "Datos del módulo no válidos." });
             }
 
             var myModulo = await _context.MyModulos.FindAsync(id);
-            if (myModulo == null)
+            if (myModulo == null || myModulo.Id_User != userId)
             {
-                return NotFound(new { message = "Módulo no encontrado." });
+                return NotFound(new { message = "Módulo no encontrado o no pertenece al usuario." });
             }
 
-            // Actualizar los valores permitidos
-            myModulo.Name = request.Name; // Si deseas que el nombre sea personalizable, usa request.Name
+            // Se permite actualizar solo el nombre
+            myModulo.Name = request.Name;
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!MyModuloExists(id))
-                {
-                    return NotFound(new { message = "Módulo no encontrado." });
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            await _context.SaveChangesAsync();
 
             return Ok(myModulo);
         }
 
-        // DELETE: api/Modulos/5
+        // DELETE: api/MyModulos/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> EliminarMyModulo(int id)
         {
-            var myModulos = await _context.MyModulos.FindAsync(id);
-            if (myModulos == null)
+            var userId = ObtenerIdUsuarioAutenticado();
+            if (userId == null)
             {
-                return NotFound(new { message = "Módulo no encontrado." });
+                return Unauthorized(new { message = "Usuario no autenticado." });
             }
 
-            _context.MyModulos.Remove(myModulos);
+            var myModulo = await _context.MyModulos.FindAsync(id);
+            if (myModulo == null || myModulo.Id_User != userId)
+            {
+                return NotFound(new { message = "Módulo no encontrado o no pertenece al usuario." });
+            }
+
+            _context.MyModulos.Remove(myModulo);
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
-        // Método auxiliar para verificar si el módulo existe
-        private bool MyModuloExists(int id)
+        // Método auxiliar para obtener el ID del usuario autenticado
+        private int? ObtenerIdUsuarioAutenticado()
         {
-            return _context.MyModulos.Any(e => e.IdMyModulo == id);
+            var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
+            return userIdClaim != null ? int.Parse(userIdClaim.Value) : (int?)null;
         }
     }
 }

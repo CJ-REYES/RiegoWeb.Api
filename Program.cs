@@ -1,6 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using RiegoWeb.Api.Data;
 using Microsoft.AspNetCore.SignalR;
+using System.Text;
+using System.IdentityModel.Tokens.Jwt;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Authentication.JwtBearer; // <-- Asegúrate de agregar esto
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -33,6 +37,25 @@ builder.Services.AddCors(options =>
               .AllowCredentials();
     });
 });
+
+// Agregar servicios
+builder.Services.AddScoped<IAuthService, AuthService>();
+
+// Configurar JWT
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = "tu_issuer",
+            ValidAudience = "tu_audience",
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("tu_clave_secreta"))
+        };
+    });
 
 // Agrega controladores y SignalR
 builder.Services.AddControllers();
@@ -70,6 +93,8 @@ if (app.Environment.IsDevelopment())
 // Habilita CORS antes de los controladores
 app.UseCors("AllowAll");
 
+app.UseAuthentication();
+app.UseAuthorization();
 // Habilita enrutamiento de controladores y SignalR
 app.UseRouting();
 app.UseAuthorization();
