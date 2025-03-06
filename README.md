@@ -109,5 +109,12 @@ _¡Inico de proyecto de gestion de Iot!_ 🚀
   dotnet ef database update
    ```
 47. se creo el modelo `MyModuloRequest.cs` el  cual se utilizo para simplifacar el Json del controllers `MyModulosControllers`
+
 48. se creo un nueva carpeta  llamada services donde esta  `RandomData.cs` para generar datos aleatorios.
- 50. para generar datos aleatoreos se  modofico el controllers de modulos para  generar datos random,donde se encuentra el metodo post llamado generar o referenciado con `Api/Modulos/Generar`.
+
+50. para generar datos aleatoreos se  modofico el controllers de modulos para  generar datos random,donde se encuentra el metodo post llamado generar o referenciado con `Api/Modulos/Generar`.
+
+51. Modifique la base de datos, cree una nueva migracion para que funcione la generacion de tokens de autentificacion
+```sh
+  dotnet ef database update
+   ```
