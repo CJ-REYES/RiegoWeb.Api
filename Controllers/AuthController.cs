@@ -14,10 +14,10 @@ namespace RiegoWeb.Api.Controllers
             _authService = authService;
         }
 
-        [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginRequest model)
+        [HttpGet("login")]
+        public async Task<IActionResult> Login([FromQuery] string correo, [FromQuery] string contraseña)
         {
-            var token = await _authService.AuthenticateAsync(model.Correo, model.Contraseña);
+            var token = await _authService.AuthenticateAsync(correo, contraseña);
 
             if (token == null)
             {
@@ -26,11 +26,5 @@ namespace RiegoWeb.Api.Controllers
 
             return Ok(new { token });
         }
-    }
-
-    public class LoginRequest
-    {
-        public string Correo { get; set; }
-        public string Contraseña { get; set; }
     }
 }
