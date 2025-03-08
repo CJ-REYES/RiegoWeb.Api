@@ -19,7 +19,39 @@ namespace RiegoWeb.Api.Controllers
         {
             _context = context;
         }
+        // POST: api/Usuario/login
+[HttpPost("login")]
+public async Task<ActionResult<User>> Login([FromBody] LoginRequest loginRequest)
+{
+    if (!ModelState.IsValid)
+    {
+        return BadRequest(new { message = "Datos de login no válidos." });
+    }
 
+    // Buscar el usuario por correo y contraseña
+    var usuario = await _context.Users
+        .FirstOrDefaultAsync(u => u.Correo == loginRequest.Correo && u.Contraseña == loginRequest.Contraceña);
+
+    if (usuario == null)
+    {
+        return Unauthorized(new { message = "Credenciales incorrectas." });
+    }
+
+    // Devolver los datos del usuario (sin la contraseña por seguridad)
+    return Ok(new
+    {
+        id = usuario.Id_User,
+        correo = usuario.Correo,
+        nombre = usuario.Nombre // Asegúrate de que tu modelo User tenga esta propiedad
+    });
+}
+
+// Clase para representar la solicitud de login
+public class LoginRequest
+{
+    public string Correo { get; set; }
+    public string Contraceña { get; set; }
+}
         // GET: api/Usuario
         [HttpGet]
         public async Task<ActionResult<IEnumerable<User>>> GetUsuarios()
