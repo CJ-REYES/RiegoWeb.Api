@@ -65,17 +65,28 @@ public async Task<ActionResult<MyModulos>> CrearMyModulo([FromBody] MyModulosReq
         return BadRequest(new { message = "Datos del módulo no válidos." });
     }
 
-    // Verificar si el usuario existe (opcional)
+    // Buscar el módulo con el IdModuloIot
+    var modulo = await _context.Modulos
+                               .Where(m => m.IdModuloIot == request.IdModuloIot)
+                               .FirstOrDefaultAsync();
+
+    if (modulo == null)
+    {
+        return NotFound(new { message = "No se encontró un módulo con el ID IoT proporcionado." });
+    }
+
+    // Verificar si el usuario existe
     var usuarioExiste = await _context.Users.AnyAsync(u => u.Id_User == request.Id_User);
     if (!usuarioExiste)
     {
         return BadRequest(new { message = "El usuario no existe." });
     }
 
+    // Crear la relación en MyModulos
     var myModulo = new MyModulos
     {
-        Id_User = request.Id_User, // Tomamos el ID del request
-        Id_Modulo = request.Id_Modulo,
+        Id_User = request.Id_User,
+        Id_Modulo = modulo.Id_Modulos, // Se obtiene el ID del módulo
         Name = request.Name
     };
 
@@ -85,12 +96,6 @@ public async Task<ActionResult<MyModulos>> CrearMyModulo([FromBody] MyModulosReq
     return CreatedAtAction(nameof(GetMyModulo), new { id = myModulo.IdMyModulo }, myModulo);
 }
 
-public class MyModulosRequest
-{
-    public int Id_User { get; set; } // <- Agregamos esta propiedad
-    public int Id_Modulo { get; set; }
-    public string Name { get; set; }
-}
 
         // PUT: api/MyModulos/5
         [HttpPut("{id}")]
