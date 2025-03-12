@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using RiegoWeb.Api.Data;
 using Microsoft.AspNetCore.SignalR;
+using RiegoWeb.Api.Hubs;  // Asegúrate de usar el espacio de nombres correcto
 using System.Text;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.IdentityModel.Tokens;

@@ -1,25 +1,21 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using RiegoWeb.Api.Data;
+using RiegoWeb.Api.Data; // Asegúrate de que este es el espacio de nombres correcto
 using RiegoWeb.Api.Models;
-  // Asegúrate de agregar este using para acceder a RandomDataHub
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
-namespace RiegoWeb.Api.Controllers
+namespace RiegoWeb.Api.Controllers  // No debe tener una llave de apertura antes de esto
 {
-    [ApiController]
     [Route("api/[controller]")]
+    [ApiController]
     public class ModulosController : ControllerBase
     {
         private readonly MyDbContext _context;
-        private readonly RandomDataHub _randomDataHub;  // Agregar esta propiedad para la dependencia
 
-        public ModulosController(MyDbContext context, RandomDataHub randomDataHub)
+        public ModulosController(MyDbContext context)
         {
             _context = context;
-            _randomDataHub = randomDataHub;  // Inyectar RandomDataHub
         }
 
         // GET: api/Modulos
@@ -37,7 +33,7 @@ namespace RiegoWeb.Api.Controllers
 
             if (modulo == null)
             {
-                return NotFound(new { message = "Módulo no encontrado." });
+                return NotFound();
             }
 
             return modulo;
@@ -45,31 +41,21 @@ namespace RiegoWeb.Api.Controllers
 
         // POST: api/Modulos
         [HttpPost]
-        public async Task<ActionResult<Modulos>> CrearModulo(Modulos modulo)
+        public async Task<ActionResult<Modulos>> PostModulo(Modulos modulo)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(new { message = "Datos del módulo no válidos." });
-            }
-
             _context.Modulos.Add(modulo);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetModulo), new { id = modulo.Id_Modulos }, modulo);
+            return CreatedAtAction("GetModulo", new { id = modulo.Id_Modulos }, modulo);
         }
 
         // PUT: api/Modulos/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> ActualizarModulo(int id, Modulos modulo)
+        public async Task<IActionResult> PutModulo(int id, Modulos modulo)
         {
             if (id != modulo.Id_Modulos)
             {
-                return BadRequest(new { message = "El ID del módulo no coincide con el de la URL." });
-            }
-
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(new { message = "Datos del módulo no válidos." });
+                return BadRequest();
             }
 
             _context.Entry(modulo).State = EntityState.Modified;
@@ -82,7 +68,7 @@ namespace RiegoWeb.Api.Controllers
             {
                 if (!ModuloExists(id))
                 {
-                    return NotFound(new { message = "Módulo no encontrado." });
+                    return NotFound();
                 }
                 else
                 {
@@ -95,12 +81,12 @@ namespace RiegoWeb.Api.Controllers
 
         // DELETE: api/Modulos/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> EliminarModulo(int id)
+        public async Task<IActionResult> DeleteModulo(int id)
         {
             var modulo = await _context.Modulos.FindAsync(id);
             if (modulo == null)
             {
-                return NotFound(new { message = "Módulo no encontrado." });
+                return NotFound();
             }
 
             _context.Modulos.Remove(modulo);
@@ -109,18 +95,9 @@ namespace RiegoWeb.Api.Controllers
             return NoContent();
         }
 
-        // Método auxiliar para verificar si el módulo existe
         private bool ModuloExists(int id)
         {
             return _context.Modulos.Any(e => e.Id_Modulos == id);
-        }
-
-        // Nuevo endpoint para generar módulos aleatorios
-        [HttpPost("generar")]
-        public ActionResult<IEnumerable<Modulos>> GenerarModulosAleatorios()
-        {
-            var modulosGenerados = _randomDataHub.Generar100ModulosRandom();  // Llamar al servicio para generar módulos aleatorios
-            return Ok(modulosGenerados);
         }
     }
 }

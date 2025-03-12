@@ -118,3 +118,9 @@ _¡Inico de proyecto de gestion de Iot!_ 🚀
 ```sh
   dotnet ef database update
    ```
+
+52. Hubo modificaciones en la base de datos, se cambio el modelo `Moddulos` para que pueda añadir los registros de datos del arduino asia la api, agregaano fecha y id del modulo `IdModuloIot`.
+
+```sh
+dotnet ef database update
+```
