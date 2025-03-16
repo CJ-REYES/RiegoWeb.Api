@@ -25,10 +25,7 @@ namespace RiegoWeb.Api.Controllers
         public async Task<ActionResult<IEnumerable<MyModulos>>> GetMyModulos()
         {
             var userId = ObtenerIdUsuarioAutenticado();
-            if (userId == null)
-            {
-                return Unauthorized(new { message = "Usuario no autenticado." });
-            }
+           
 
             return await _context.MyModulos
                                  .Where(m => m.Id_User == userId)
@@ -57,68 +54,63 @@ namespace RiegoWeb.Api.Controllers
             return myModulo;
         }
 
-[HttpPost]
-public async Task<ActionResult<MyModulos>> CrearMyModulo([FromBody] MyModulosRequest request)
-{
-    if (!ModelState.IsValid)
-    {
-        return BadRequest(new { message = "Datos del módulo no válidos." });
-    }
+        [HttpPost]
+        public async Task<ActionResult<MyModulos>> CrearMyModulo([FromBody] MyModulosRequest request)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new { message = "Datos del módulo no válidos." });
+            }
 
-    // Verificar si el usuario existe (opcional)
-    var usuarioExiste = await _context.Users.AnyAsync(u => u.Id_User == request.Id_User);
-    if (!usuarioExiste)
-    {
-        return BadRequest(new { message = "El usuario no existe." });
-    }
+            // Verificar si el usuario existe (opcional)
+            var usuarioExiste = await _context.Users.AnyAsync(u => u.Id_User == request.Id_User);
+            if (!usuarioExiste)
+            {
+                return BadRequest(new { message = "El usuario no existe." });
+            }
 
-    var myModulo = new MyModulos
-    {
-        Id_User = request.Id_User, // Tomamos el ID del request
-        Id_Modulo = request.Id_Modulo,
-        Name = request.Name
-    };
+            var myModulo = new MyModulos
+            {
+                Id_User = request.Id_User, // Tomamos el ID del request
+                Id_Modulo = request.Id_Modulo,
+                Name = request.Name
+            };
 
-    _context.MyModulos.Add(myModulo);
-    await _context.SaveChangesAsync();
+            _context.MyModulos.Add(myModulo);
+            await _context.SaveChangesAsync();
 
-    return CreatedAtAction(nameof(GetMyModulo), new { id = myModulo.IdMyModulo }, myModulo);
-}
+            return CreatedAtAction(nameof(GetMyModulo), new { id = myModulo.IdMyModulo }, myModulo);
+        }
 
-public class MyModulosRequest
-{
-    public int Id_User { get; set; } // <- Agregamos esta propiedad
-    public int Id_Modulo { get; set; }
-    public string Name { get; set; }
-}
+        public class MyModulosRequest
+        {
+            public int Id_User { get; set; } // <- Agregamos esta propiedad
+            public int Id_Modulo { get; set; }
+            public string Name { get; set; }
+        }
 
         // PUT: api/MyModulos/5
         [HttpPut("{id}")]
         public async Task<IActionResult> ActualizarMyModulo(int id, [FromBody] MyModulosRequest request)
         {
-            var userId = ObtenerIdUsuarioAutenticado();
-            if (userId == null)
-            {
-                return Unauthorized(new { message = "Usuario no autenticado." });
-            }
-
             if (!ModelState.IsValid)
             {
                 return BadRequest(new { message = "Datos del módulo no válidos." });
             }
 
             var myModulo = await _context.MyModulos.FindAsync(id);
-            if (myModulo == null || myModulo.Id_User != userId)
+            if (myModulo == null)
             {
-                return NotFound(new { message = "Módulo no encontrado o no pertenece al usuario." });
+                return NotFound(new { message = "Módulo no encontrado." });
             }
 
             // Se permite actualizar solo el nombre
             myModulo.Name = request.Name;
 
+            _context.MyModulos.Update(myModulo);
             await _context.SaveChangesAsync();
 
-            return Ok(myModulo);
+            return NoContent();
         }
 
         // DELETE: api/MyModulos/5
