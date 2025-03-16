@@ -101,7 +101,11 @@ public async Task<ActionResult<MyModulos>> CrearMyModulo([FromBody] MyModulosReq
         [HttpPut("{id}")]
         public async Task<IActionResult> ActualizarMyModulo(int id, [FromBody] MyModulosRequest request)
         {
-            
+            var userId = ObtenerIdUsuarioAutenticado();
+            if (userId == null)
+            {
+                return Unauthorized(new { message = "Usuario no autenticado." });
+            }
 
             if (!ModelState.IsValid)
             {
@@ -109,7 +113,10 @@ public async Task<ActionResult<MyModulos>> CrearMyModulo([FromBody] MyModulosReq
             }
 
             var myModulo = await _context.MyModulos.FindAsync(id);
-          
+            if (myModulo == null || myModulo.Id_User != userId)
+            {
+                return NotFound(new { message = "Módulo no encontrado o no pertenece al usuario." });
+            }
 
             // Se permite actualizar solo el nombre
             myModulo.Name = request.Name;
