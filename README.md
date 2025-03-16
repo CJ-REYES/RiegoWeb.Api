@@ -118,3 +118,11 @@ _¡Inico de proyecto de gestion de Iot!_ 🚀
 ```sh
   dotnet ef database update
    ```
+52. Al intentar soluconar el detalle de guardar un historial con los datos de los modulos con fecha para que se muestre en la grafica, por la cual subi 2 actualizacions con una logica un tanto incorrecta.
+
+- por la cual retrocedi una vercion y cambie de rama para subir una solucion para esto. `Frima: Pendertuga  "un CRAK" ESA FUE MI RODILLA`
+
+54. SE CAMBIO LA LOGICA DEL PROYECTO, SE IMPLEMTO EL MODELO `HistoorialDeModulos.cs`, cada vez que el `Arduino` cree o actualice un registro en `Moddulo`, el controlador `ModulosControllers.cs` guarda los datos tanto en `Modulos` como en `HistorialDeModulos`. para esto se modifico la base de datos, para que te funcione el proyecto al traer los datos no olvide de hacer un.
+```sh
+  dotnet ef database update
+   ```

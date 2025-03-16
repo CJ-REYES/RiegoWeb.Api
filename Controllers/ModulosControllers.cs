@@ -5,7 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using RiegoWeb.Api.Data;
 using RiegoWeb.Api.Models;
-  // Asegúrate de agregar este using para acceder a RandomDataHub
+using System;
 
 namespace RiegoWeb.Api.Controllers
 {
@@ -14,12 +14,12 @@ namespace RiegoWeb.Api.Controllers
     public class ModulosController : ControllerBase
     {
         private readonly MyDbContext _context;
-        private readonly RandomDataHub _randomDataHub;  // Agregar esta propiedad para la dependencia
+        private readonly RandomDataHub _randomDataHub;
 
         public ModulosController(MyDbContext context, RandomDataHub randomDataHub)
         {
             _context = context;
-            _randomDataHub = randomDataHub;  // Inyectar RandomDataHub
+            _randomDataHub = randomDataHub;
         }
 
         // GET: api/Modulos
@@ -55,6 +55,20 @@ namespace RiegoWeb.Api.Controllers
             _context.Modulos.Add(modulo);
             await _context.SaveChangesAsync();
 
+            // Guardar en HistoriaDeModulos
+            var historial = new HistoriaDeModulos
+            {
+                Id_Modulos = modulo.Id_Modulos,
+                Name = modulo.Name,
+                Temperatura = modulo.Temperatura,
+                Humedad = modulo.Humedad,
+                LuzNivel = modulo.LuzNivel,
+                Fecha = DateTime.Now
+            };
+
+            _context.HistoriaDeModulos.Add(historial);
+            await _context.SaveChangesAsync();
+
             return CreatedAtAction(nameof(GetModulo), new { id = modulo.Id_Modulos }, modulo);
         }
 
@@ -76,6 +90,20 @@ namespace RiegoWeb.Api.Controllers
 
             try
             {
+                await _context.SaveChangesAsync();
+
+                // Guardar en HistoriaDeModulos
+                var historial = new HistoriaDeModulos
+                {
+                    Id_Modulos = modulo.Id_Modulos,
+                    Name = modulo.Name,
+                    Temperatura = modulo.Temperatura,
+                    Humedad = modulo.Humedad,
+                    LuzNivel = modulo.LuzNivel,
+                    Fecha = DateTime.Now
+                };
+
+                _context.HistoriaDeModulos.Add(historial);
                 await _context.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
@@ -109,17 +137,15 @@ namespace RiegoWeb.Api.Controllers
             return NoContent();
         }
 
-        // Método auxiliar para verificar si el módulo existe
         private bool ModuloExists(int id)
         {
             return _context.Modulos.Any(e => e.Id_Modulos == id);
         }
 
-        // Nuevo endpoint para generar módulos aleatorios
         [HttpPost("generar")]
         public ActionResult<IEnumerable<Modulos>> GenerarModulosAleatorios()
         {
-            var modulosGenerados = _randomDataHub.Generar100ModulosRandom();  // Llamar al servicio para generar módulos aleatorios
+            var modulosGenerados = _randomDataHub.Generar100ModulosRandom();
             return Ok(modulosGenerados);
         }
     }

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RiegoWeb.Api.Data;
 
@@ -11,9 +12,11 @@ using RiegoWeb.Api.Data;
 namespace RiegoWeb.Api.Migrations
 {
     [DbContext(typeof(MyDbContext))]
-    partial class MyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250316020058_Historial")]
+    partial class Historial
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -44,6 +47,9 @@ namespace RiegoWeb.Api.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
+                    b.Property<int>("ModulosId_Modulos")
+                        .HasColumnType("int");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("longtext");
@@ -54,7 +60,7 @@ namespace RiegoWeb.Api.Migrations
 
                     b.HasKey("Id_HistoriaDeModulos");
 
-                    b.HasIndex("Id_Modulos");
+                    b.HasIndex("ModulosId_Modulos");
 
                     b.ToTable("HistoriaDeModulos");
                 });
@@ -145,13 +151,13 @@ namespace RiegoWeb.Api.Migrations
 
             modelBuilder.Entity("RiegoWeb.Api.Models.HistoriaDeModulos", b =>
                 {
-                    b.HasOne("RiegoWeb.Api.Models.Modulos", "Modulo")
+                    b.HasOne("RiegoWeb.Api.Models.Modulos", "Modulos")
                         .WithMany()
-                        .HasForeignKey("Id_Modulos")
+                        .HasForeignKey("ModulosId_Modulos")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Modulo");
+                    b.Navigation("Modulos");
                 });
 
             modelBuilder.Entity("RiegoWeb.Api.Models.MyModulos", b =>
