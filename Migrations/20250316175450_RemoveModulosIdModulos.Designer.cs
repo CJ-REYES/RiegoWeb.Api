@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RiegoWeb.Api.Data;
 
@@ -11,9 +12,11 @@ using RiegoWeb.Api.Data;
 namespace RiegoWeb.Api.Migrations
 {
     [DbContext(typeof(MyDbContext))]
-    partial class MyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250316175450_RemoveModulosIdModulos")]
+    partial class RemoveModulosIdModulos
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -67,15 +70,9 @@ namespace RiegoWeb.Api.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id_Modulos"));
 
-                    b.Property<DateTime>("Fecha")
-                        .HasColumnType("datetime(6)");
-
                     b.Property<string>("Humedad")
                         .IsRequired()
                         .HasColumnType("longtext");
-
-                    b.Property<int>("IdModuloIot")
-                        .HasColumnType("int");
 
                     b.Property<string>("LuzNivel")
                         .IsRequired()

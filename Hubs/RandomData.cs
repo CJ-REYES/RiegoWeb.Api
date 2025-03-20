@@ -25,7 +25,6 @@ namespace RiegoWeb.Api.Hubs
             {
                 var modulo = new Modulos
                 {
-                    IdModuloIot = _random.Next(1, 1000),
                     Name = $"Modulo_{_random.Next(1, 1000)}",
                     Temperatura = $"{_random.Next(15, 40)}°C",
                     Humedad = $"{_random.Next(30, 80)}%",
