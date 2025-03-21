@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using RiegoWeb.Api.Data;
 using Microsoft.AspNetCore.SignalR;
-using RiegoWeb.Api.Hubs;  // Asegúrate de usar el espacio de nombres correcto
 using System.Text;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.IdentityModel.Tokens;
@@ -24,7 +23,7 @@ catch (Exception ex)
 }
 
 // Registrar RandomDataHub en el contenedor de dependencias
-builder.Services.AddScoped<RandomDataHub>();
+
 
 // Configuración de CORS
 builder.Services.AddCors(options =>
@@ -101,6 +100,5 @@ app.UseRouting();
 app.UseAuthorization();
 
 app.MapControllers();
-app.MapHub<RandomDataHub>("/randomDataHub");
 
 app.Run();

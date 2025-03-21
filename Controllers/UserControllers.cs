@@ -60,20 +60,7 @@ public class LoginRequest
         }
 
         // GET: api/Usuario/5
-        [HttpGet("usuario/{id}")]
-public async Task<ActionResult<IEnumerable<MyModulos>>> GetMyModulosPorUsuario(int id)
-{
-    var myModulos = await _context.MyModulos
-                                   .Where(m => m.Id_User == id)
-                                   .ToListAsync();
-
-    if (myModulos == null || !myModulos.Any())
-    {
-        return NotFound(new { message = "No se encontraron módulos para este usuario." });
-    }
-
-    return myModulos;
-}
+    
 
 
         // POST: api/Usuario
