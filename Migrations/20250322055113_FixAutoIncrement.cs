@@ -7,51 +7,12 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace RiegoWeb.Api.Migrations
 {
     /// <inheritdoc />
-    public partial class Initials : Migration
+    public partial class FixAutoIncrement : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AlterDatabase()
-                .Annotation("MySql:CharSet", "utf8mb4");
-
-            migrationBuilder.CreateTable(
-                name: "LecturaModulo",
-                columns: table => new
-                {
-                    Id_Historial = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    Id_Modulo = table.Column<int>(type: "int", nullable: false),
-                    Temperatura = table.Column<string>(type: "longtext", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    Humedad = table.Column<string>(type: "longtext", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    LuzNivel = table.Column<string>(type: "longtext", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    created_at = table.Column<DateTime>(type: "datetime(6)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_LecturaModulo", x => x.Id_Historial);
-                })
-                .Annotation("MySql:CharSet", "utf8mb4");
-
-            migrationBuilder.CreateTable(
-                name: "Modulos",
-                columns: table => new
-                {
-                    Id_Modulo = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    Name = table.Column<string>(type: "longtext", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    Id_User = table.Column<int>(type: "int", nullable: false),
-                    date = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    created_at = table.Column<DateTime>(type: "datetime(6)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Modulos", x => x.Id_Modulo);
-                })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
@@ -73,6 +34,64 @@ namespace RiegoWeb.Api.Migrations
                     table.PrimaryKey("PK_Users", x => x.Id_User);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "Modulos",
+                columns: table => new
+                {
+                    Id_Modulo = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    Name = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Id_User = table.Column<int>(type: "int", nullable: false),
+                    Date = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    created_at = table.Column<DateTime>(type: "datetime(6)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Modulos", x => x.Id_Modulo);
+                    table.ForeignKey(
+                        name: "FK_Modulos_Users_Id_User",
+                        column: x => x.Id_User,
+                        principalTable: "Users",
+                        principalColumn: "Id_User",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "LecturaModulo",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    Id_Modulo = table.Column<int>(type: "int", nullable: false),
+                    Date = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    Temperatura = table.Column<decimal>(type: "decimal(65,30)", nullable: false),
+                    Humedad = table.Column<decimal>(type: "decimal(65,30)", nullable: false),
+                    NivelLux = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_LecturaModulo", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_LecturaModulo_Modulos_Id_Modulo",
+                        column: x => x.Id_Modulo,
+                        principalTable: "Modulos",
+                        principalColumn: "Id_Modulo",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_LecturaModulo_Id_Modulo",
+                table: "LecturaModulo",
+                column: "Id_Modulo");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Modulos_Id_User",
+                table: "Modulos",
+                column: "Id_User");
         }
 
         /// <inheritdoc />

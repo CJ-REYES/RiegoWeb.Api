@@ -20,6 +20,18 @@ namespace RiegoWeb.Api.Controllers
             _context = context;
         }
         // POST: api/Usuario/login
+
+public class UserCreateDTO
+{
+    
+    public required string Username { get; set; }
+
+   
+    public required string Email { get; set; }
+
+
+    public required string Password { get; set; }
+}
 [HttpPost("login")]
 public async Task<ActionResult<User>> Login([FromBody] LoginRequest loginRequest)
 {
@@ -30,7 +42,7 @@ public async Task<ActionResult<User>> Login([FromBody] LoginRequest loginRequest
 
     // Buscar el usuario por correo y contraseña
     var usuario = await _context.Users
-        .FirstOrDefaultAsync(u => u.Correo == loginRequest.Correo && u.Contraseña == loginRequest.Contraceña);
+        .FirstOrDefaultAsync(u => u.Email == loginRequest.EmaiL && u.Password == loginRequest.Password);
 
     if (usuario == null)
     {
@@ -40,17 +52,17 @@ public async Task<ActionResult<User>> Login([FromBody] LoginRequest loginRequest
     // Devolver los datos del usuario (sin la contraseña por seguridad)
     return Ok(new
     {
-        id = usuario.Id_User,
-        correo = usuario.Correo,
-        nombre = usuario.Nombre // Asegúrate de que tu modelo User tenga esta propiedad
+        id = usuario.Id,
+        correo = usuario.Email,
+        nombre = usuario.Username // Asegúrate de que tu modelo User tenga esta propiedad
     });
 }
 
 // Clase para representar la solicitud de login
 public class LoginRequest
 {
-    public string Correo { get; set; }
-    public string Contraceña { get; set; }
+    public string EmaiL { get; set; }
+    public string Password { get; set; }
 }
         // GET: api/Usuario
         [HttpGet]
@@ -65,24 +77,26 @@ public class LoginRequest
 
         // POST: api/Usuario
         [HttpPost]
-        public async Task<ActionResult<User>> CrearUsuario(User user)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(new { message = "Datos del usuario no válidos." });
-            }
+public async Task<ActionResult<User>> CreateUser(UserCreateDTO userDTO)
+{
+    var user = new User
+    {
+        Username = userDTO.Username,
+        Email = userDTO.Email,
+        Password = userDTO.Password
+    };
 
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
+    _context.Users.Add(user);
+    await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetUsuarios), new { id = user.Id_User }, user);
-        }
+    return CreatedAtAction(nameof(GetUsuarios), new { id = user.Id }, user);
+}
 
         // PUT: api/Usuario/5
         [HttpPut("{id}")]
         public async Task<IActionResult> ActualizarUsuario(int id, User user)
         {
-            if (id != user.Id_User)
+            if (id != user.Id)
             {
                 return BadRequest(new { message = "El ID del usuario no coincide con el de la URL." });
             }
@@ -132,7 +146,7 @@ public class LoginRequest
         // Método auxiliar para verificar si el usuario existe
         private bool UsuarioExists(int id)
         {
-            return _context.Users.Any(e => e.Id_User == id);
+            return _context.Users.Any(e => e.Id == id);
         }
     }
 }

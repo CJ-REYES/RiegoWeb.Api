@@ -15,9 +15,9 @@ namespace RiegoWeb.Api.Controllers
         }
 
         [HttpGet("login")]
-        public async Task<IActionResult> Login([FromQuery] string correo, [FromQuery] string contraseña)
+        public async Task<IActionResult> Login([FromQuery] string EmaiL, [FromQuery] string Password)
         {
-            var token = await _authService.AuthenticateAsync(correo, contraseña);
+            var token = await _authService.AuthenticateAsync(EmaiL, Password);
 
             if (token == null)
             {

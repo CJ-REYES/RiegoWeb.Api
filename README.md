@@ -135,3 +135,8 @@ dotnet ef database update
   dotnet ef database update
    ```
 
+55. Modificaciones en la logica del backend, se restructuro todo, nuevos cambios en `ModulosController` aprecen 3 nuevos metodos.
+
+- `GET/api/Modulos/{idModulo}/lecturas` te muestra todas las lecturas de un modulo.
+- `GET/api/Modulos/{idModulo}/lecturas/{idLectura}` te muestra una lectura espesifica de un modulo especifico.
+- `POST/api/Modulos/{idModulo}/lecturas/random` crea lecturas randoms en la tabla `Lecturasdemodulos`.

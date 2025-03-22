@@ -23,6 +23,11 @@ namespace RiegoWeb.Api.Data
                 .HasOne(l => l.Modulo)           // Una lectura pertenece a un módulo
                 .WithMany(m => m.Lecturas)      // Un módulo tiene muchas lecturas
                 .HasForeignKey(l => l.Id_Modulo);// Clave foránea en LecturaModulo
+
+            modelBuilder.Entity<LecturaModulo>()
+            .Property(l => l.Id)
+            .ValueGeneratedOnAdd(); // Asegura AUTO_INCREMENT
+
         }
     }
 }

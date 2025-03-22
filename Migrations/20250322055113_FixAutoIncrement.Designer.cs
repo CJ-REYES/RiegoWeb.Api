@@ -12,8 +12,8 @@ using RiegoWeb.Api.Data;
 namespace RiegoWeb.Api.Migrations
 {
     [DbContext(typeof(MyDbContext))]
-    [Migration("20250322052804_RelacionesConfiguradas")]
-    partial class RelacionesConfiguradas
+    [Migration("20250322055113_FixAutoIncrement")]
+    partial class FixAutoIncrement
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -27,31 +27,28 @@ namespace RiegoWeb.Api.Migrations
 
             modelBuilder.Entity("RiegoWeb.Api.Models.LecturaModulo", b =>
                 {
-                    b.Property<int>("Id_Historial")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id_Historial"));
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Humedad")
-                        .IsRequired()
-                        .HasColumnType("longtext");
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<decimal>("Humedad")
+                        .HasColumnType("decimal(65,30)");
 
                     b.Property<int>("Id_Modulo")
                         .HasColumnType("int");
 
-                    b.Property<string>("LuzNivel")
-                        .IsRequired()
-                        .HasColumnType("longtext");
+                    b.Property<int>("NivelLux")
+                        .HasColumnType("int");
 
-                    b.Property<string>("Temperatura")
-                        .IsRequired()
-                        .HasColumnType("longtext");
+                    b.Property<decimal>("Temperatura")
+                        .HasColumnType("decimal(65,30)");
 
-                    b.Property<DateTime>("created_at")
-                        .HasColumnType("datetime(6)");
-
-                    b.HasKey("Id_Historial");
+                    b.HasKey("Id");
 
                     b.HasIndex("Id_Modulo");
 
@@ -66,18 +63,19 @@ namespace RiegoWeb.Api.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id_Modulo"));
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime(6)");
+
                     b.Property<int>("Id_User")
                         .HasColumnType("int");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("longtext");
-
-                    b.Property<DateTime>("created_at")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<DateTime>("date")
-                        .HasColumnType("datetime(6)");
 
                     b.HasKey("Id_Modulo");
 

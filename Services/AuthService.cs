@@ -24,7 +24,7 @@ public class AuthService : IAuthService
 
     public async Task<string> AuthenticateAsync(string correo, string contraseña)
     {
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.Correo == correo && u.Contraseña == contraseña);
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == correo && u.Password == contraseña);
 
         if (user == null)
         {
@@ -39,10 +39,10 @@ public class AuthService : IAuthService
        var key = Encoding.UTF8.GetBytes(_config["Jwt:Key"]);
         var claims = new[]
         {
-            new Claim(JwtRegisteredClaimNames.Sub, user.Id_User.ToString()),
-            new Claim(JwtRegisteredClaimNames.Email, user.Correo),
-            new Claim(ClaimTypes.Name, user.Nombre),
-            new Claim("userId", user.Id_User.ToString()) // Puedes agregar más claims si es necesario
+            new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+            new Claim(JwtRegisteredClaimNames.Email, user.Email),
+            new Claim(ClaimTypes.Name, user.Username),
+            new Claim("userId", user.Id.ToString()) // Puedes agregar más claims si es necesario
         };
 
         var credentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256);
