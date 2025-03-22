@@ -4,7 +4,8 @@ using Microsoft.AspNetCore.SignalR;
 using System.Text;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.AspNetCore.Authentication.JwtBearer; // <-- Asegúrate de agregar esto
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using System.Text.Json.Serialization; // <-- Asegúrate de agregar esto
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,7 +24,11 @@ catch (Exception ex)
 }
 
 // Registrar RandomDataHub en el contenedor de dependencias
-
+builder.Services.AddControllers()
+            .AddJsonOptions(options => 
+            {
+                options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+            });
 
 // Configuración de CORS
 builder.Services.AddCors(options =>

@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RiegoWeb.Api.Data;
 using RiegoWeb.Api.Models;
+using System.Text.Json.Serialization;
 
 namespace RiegoWeb.Api.Controllers
 {
@@ -16,118 +17,88 @@ namespace RiegoWeb.Api.Controllers
             _context = context;
         }
 
-        // Obtener todos los módulos
+        // GET: api/Modulos
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Modulos>>> GetModulos()
+        public async Task<ActionResult<IEnumerable<ModuloDTO>>> GetModulos()
         {
-            return await _context.Modulos.Include(m => m.Lecturas).ToListAsync();
+            return await _context.Modulos
+                .Include(m => m.Lecturas)
+                .Select(m => new ModuloDTO
+                {
+                    Id_Modulo = m.Id_Modulo,
+                    Name = m.Name,
+                    Id_User = m.Id_User,
+                    Date = m.Date,
+                    CreatedAt = m.CreatedAt,
+                })
+                .ToListAsync();
         }
 
-        // Obtener un módulo por ID
-       [HttpGet("{id}")]
-public async Task<ActionResult<ModuloDTO>> GetModulo(int id)
-{
-    var modulo = await _context.Modulos
-        .Include(m => m.Lecturas)
-        .FirstOrDefaultAsync(m => m.Id_Modulo == id);
-
-    if (modulo == null) return NotFound();
-
-    return new ModuloDTO
-    {
-        Id_Modulo = modulo.Id_Modulo,
-        Name = modulo.Name,
-        Id_User = modulo.Id_User,
-        Date = modulo.Date,
-        CreatedAt = modulo.CreatedAt,
-        Lecturas = modulo.Lecturas.Select(l => new LecturaModuloDTO
+        // GET: api/Modulos/5
+        [HttpGet("{id}")]
+        public async Task<ActionResult<ModuloDTO>> GetModulo(int id)
         {
-            Id = l.Id,
-            Temperatura = l.Temperatura,
-            Humedad = l.Humedad,
-            NivelLux = l.NivelLux,
-            Date = l.Date
-        }).ToList()
-    };
-}
+            var modulo = await _context.Modulos
+                .Include(m => m.Lecturas)
+                .FirstOrDefaultAsync(m => m.Id_Modulo == id);
 
-        // DTO para Modulos (Create/Update)
-        public class ModuloDTO
-{
-    public int Id_Modulo { get; set; }
-    public string Name { get; set; }
-    public int Id_User { get; set; }
-    public DateTime Date { get; set; }
-    public DateTime CreatedAt { get; set; }
-    public List<LecturaModuloDTO> Lecturas { get; set; }
-}
-public class LecturaModuloDTO
-{
-    public int Id { get; set; }
-    public decimal Temperatura { get; set; }
-    public decimal Humedad { get; set; }
-    public int NivelLux { get; set; }
-    public DateTime Date { get; set; }
-}
+            if (modulo == null) return NotFound();
 
-// Modifica el método POST en el controlador:
-[HttpPost]
-public async Task<ActionResult<Modulos>> CreateModulo(ModuloDTO moduloDTO)
-{
-    var modulo = new Modulos
-    {
-        Name = moduloDTO.Name,
-        Id_User = moduloDTO.Id_User,
-        Date = moduloDTO.Date,
-        CreatedAt = DateTime.Now
-    };
+            return new ModuloDTO
+            {
+                Id_Modulo = modulo.Id_Modulo,
+                Name = modulo.Name,
+                Id_User = modulo.Id_User,
+                Date = modulo.Date,
+                CreatedAt = modulo.CreatedAt,
+                Lecturas = modulo.Lecturas.Select(l => new LecturaModuloDTO
+                {
+                    Id = l.Id,
+                    Temperatura = l.Temperatura,
+                    Humedad = l.Humedad,
+                    NivelLux = l.NivelLux,
+                    Date = l.Date
+                }).ToList()
+            };
+        }
 
-    _context.Modulos.Add(modulo);
-    await _context.SaveChangesAsync();
+        // POST: api/Modulos
+        [HttpPost]
+        public async Task<ActionResult<Modulos>> CreateModulo(CreateModuloDTO moduloDTO)
+        {
+            var modulo = new Modulos
+            {
+                Name = moduloDTO.Name,
+                Id_User = moduloDTO.Id_User,
+                Date = DateTime.Now,
+                CreatedAt = DateTime.Now
+            };
 
-    return CreatedAtAction(nameof(GetModulo), new { id = modulo.Id_Modulo }, modulo);
-}
+            _context.Modulos.Add(modulo);
+            await _context.SaveChangesAsync();
 
-        // Actualizar módulo
+            return CreatedAtAction(nameof(GetModulo), new { id = modulo.Id_Modulo }, modulo);
+        }
+
+        // PUT: api/Modulos/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateModulo(int id, Modulos modulo)
+        public async Task<IActionResult> UpdateModulo(int id, UpdateModuloDTO updateDto)
         {
-            if (id != modulo.Id_Modulo)
-            {
-                return BadRequest();
-            }
+            var modulo = await _context.Modulos.FindAsync(id);
+            if (modulo == null) return NotFound();
 
-            modulo.CreatedAt = _context.Entry(modulo).Property(x => x.CreatedAt).OriginalValue;
-            _context.Entry(modulo).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!ModuloExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            modulo.Name = updateDto.Name;
+            await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
-        // Eliminar módulo
+        // DELETE: api/Modulos/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteModulo(int id)
         {
             var modulo = await _context.Modulos.FindAsync(id);
-            if (modulo == null)
-            {
-                return NotFound();
-            }
+            if (modulo == null) return NotFound();
 
             _context.Modulos.Remove(modulo);
             await _context.SaveChangesAsync();
@@ -135,61 +106,62 @@ public async Task<ActionResult<Modulos>> CreateModulo(ModuloDTO moduloDTO)
             return NoContent();
         }
 
-        // Endpoint para recibir datos del IoT
-        [HttpGet("{idModulo}/lecturas")]
-public async Task<ActionResult<IEnumerable<LecturaModuloDTO>>> GetLecturas(int idModulo)
-{
-    var lecturas = await _context.LecturaModulo
-        .Where(l => l.Id_Modulo == idModulo)
-        .OrderByDescending(l => l.Date)
-        .Select(l => new LecturaModuloDTO
+        // GET: api/Modulos/{idModule}/lecturas
+        [HttpGet("{idModule}/lecturas")] // <-- Nombre del parámetro corregido (idModule)
+        public async Task<ActionResult<IEnumerable<LecturaModuloDTO>>> GetLecturas(int idModule)
         {
-            Id = l.Id,
-            Temperatura = l.Temperatura,
-            Humedad = l.Humedad,
-            NivelLux = l.NivelLux,
-            Date = l.Date
-        })
-        .ToListAsync();
+            var lecturas = await _context.LecturaModulo
+                .Where(l => l.Id_Modulo == idModule)
+                .OrderByDescending(l => l.Date)
+                .Select(l => new LecturaModuloDTO
+                {
+                    Id = l.Id,
+                    Temperatura = l.Temperatura,
+                    Humedad = l.Humedad,
+                    NivelLux = l.NivelLux,
+                    Date = l.Date
+                })
+                .ToListAsync();
 
-    if (!lecturas.Any()) return NotFound("No hay lecturas registradas");
+            if (!lecturas.Any()) return NotFound("No hay lecturas registradas");
+            return lecturas;
+        }
 
-    return lecturas;
-}
-
-        // Obtener una lectura específica
-        [HttpGet("{idModulo}/lecturas/{idLectura}")]
-        public async Task<ActionResult<LecturaModulo>> GetLectura(int idModulo, int idLectura)
+        // GET: api/Modulos/{idModule}/lecturas/{idLectura}
+        [HttpGet("{idModule}/lecturas/{idLectura}")] // <-- Parámetros corregidos
+        public async Task<ActionResult<LecturaModuloDTO>> GetLectura(int idModule, int idLectura)
         {
             var lectura = await _context.LecturaModulo
-                .FirstOrDefaultAsync(l => l.Id == idLectura && l.Id_Modulo == idModulo);
+                .Where(l => l.Id_Modulo == idModule && l.Id == idLectura)
+                .Select(l => new LecturaModuloDTO
+                {
+                    Id = l.Id,
+                    Temperatura = l.Temperatura,
+                    Humedad = l.Humedad,
+                    NivelLux = l.NivelLux,
+                    Date = l.Date
+                })
+                .FirstOrDefaultAsync();
 
-            if (lectura == null)
-            {
-                return NotFound();
-            }
-
+            if (lectura == null) return NotFound();
             return lectura;
         }
 
-        private bool ModuloExists(int id)
+        // POST: api/Modulos/{idModule}/lecturas/random
+        [HttpPost("{idModule}/lecturas/random")]
+        public async Task<ActionResult<LecturaModuloDTO>> GenerateRandomReading(int idModule)
         {
-            return _context.Modulos.Any(e => e.Id_Modulo == id);
-        }
-         [HttpPost("{idModulo}/lecturas/random")]
-        public async Task<ActionResult<LecturaModulo>> GenerateRandomReading(int idModulo)
-        {
-            var modulo = await _context.Modulos.FindAsync(idModulo);
+            var modulo = await _context.Modulos.FindAsync(idModule);
             if (modulo == null) return NotFound("Módulo no encontrado");
 
             var random = new Random();
             
             var lectura = new LecturaModulo
             {
-                Id_Modulo = idModulo,
-                Temperatura = (Decimal)Math.Round(random.NextDouble() * 50 - 10, 2),  // Rango: -10°C a 40°C
-                Humedad = (Decimal)Math.Round(random.NextDouble() * 80 + 20, 2),     // Rango: 20% a 100%
-                NivelLux = random.Next(0, 2001),                            // Rango: 0 a 2000 lux
+                Id_Modulo = idModule,
+                Temperatura = (decimal)Math.Round(random.NextDouble() * 50 - 10, 2),
+                Humedad = (decimal)Math.Round(random.NextDouble() * 80 + 20, 2),
+                NivelLux = random.Next(0, 2001),
                 Date = DateTime.Now
             };
 
@@ -198,9 +170,52 @@ public async Task<ActionResult<IEnumerable<LecturaModuloDTO>>> GetLecturas(int i
 
             return CreatedAtAction(
                 nameof(GetLectura), 
-                new { idModulo = idModulo, idLectura = lectura.Id }, 
-                lectura
+                new { idModule = idModule, idLectura = lectura.Id }, 
+                new LecturaModuloDTO 
+                {
+                    Id = lectura.Id,
+                    Temperatura = lectura.Temperatura,
+                    Humedad = lectura.Humedad,
+                    NivelLux = lectura.NivelLux,
+                    Date = lectura.Date
+                }
             );
-    }
+        }
+
+        // DTOs
+        public class ModuloDTO
+        {
+            public int Id_Modulo { get; set; }
+            public string Name { get; set; }
+            public int Id_User { get; set; }
+            public DateTime Date { get; set; }
+            public DateTime CreatedAt { get; set; }
+            public List<LecturaModuloDTO> Lecturas { get; set; }
+        }
+
+        public class CreateModuloDTO
+        {
+            public string Name { get; set; }
+            public int Id_User { get; set; }
+        }
+
+        public class UpdateModuloDTO
+        {
+            public string Name { get; set; }
+        }
+
+        public class LecturaModuloDTO
+        {
+            public int Id { get; set; }
+            public decimal Temperatura { get; set; }
+            public decimal Humedad { get; set; }
+            public int NivelLux { get; set; }
+            public DateTime Date { get; set; }
+        }
+
+        private bool ModuloExists(int id)
+        {
+            return _context.Modulos.Any(e => e.Id_Modulo == id);
+        }
     }
 }
