@@ -22,8 +22,9 @@ public class User
     
     [JsonPropertyName("password")]
     public string Contraseña { get; set; }
-
     public  required DateTime created_at{ get;set;} = DateTime.Now;
+
+    public ICollection<Modulos> Modulos { get; set; }
 
 }
 

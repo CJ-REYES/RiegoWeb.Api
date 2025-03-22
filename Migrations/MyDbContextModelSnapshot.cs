@@ -24,15 +24,18 @@ namespace RiegoWeb.Api.Migrations
 
             modelBuilder.Entity("RiegoWeb.Api.Models.LecturaModulo", b =>
                 {
-                    b.Property<int>("id")
+                    b.Property<int>("Id_Historial")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("id"));
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id_Historial"));
 
                     b.Property<string>("Humedad")
                         .IsRequired()
                         .HasColumnType("longtext");
+
+                    b.Property<int>("Id_Modulo")
+                        .HasColumnType("int");
 
                     b.Property<string>("LuzNivel")
                         .IsRequired()
@@ -45,21 +48,20 @@ namespace RiegoWeb.Api.Migrations
                     b.Property<DateTime>("created_at")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<int>("id_Modulo")
-                        .HasColumnType("int");
+                    b.HasKey("Id_Historial");
 
-                    b.HasKey("id");
+                    b.HasIndex("Id_Modulo");
 
                     b.ToTable("LecturaModulo");
                 });
 
             modelBuilder.Entity("RiegoWeb.Api.Models.Modulos", b =>
                 {
-                    b.Property<int>("id")
+                    b.Property<int>("Id_Modulo")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("id"));
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id_Modulo"));
 
                     b.Property<int>("Id_User")
                         .HasColumnType("int");
@@ -71,10 +73,12 @@ namespace RiegoWeb.Api.Migrations
                     b.Property<DateTime>("created_at")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<int>("date")
-                        .HasColumnType("int");
+                    b.Property<DateTime>("date")
+                        .HasColumnType("datetime(6)");
 
-                    b.HasKey("id");
+                    b.HasKey("Id_Modulo");
+
+                    b.HasIndex("Id_User");
 
                     b.ToTable("Modulos");
                 });
@@ -108,6 +112,38 @@ namespace RiegoWeb.Api.Migrations
                     b.HasKey("Id_User");
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("RiegoWeb.Api.Models.LecturaModulo", b =>
+                {
+                    b.HasOne("RiegoWeb.Api.Models.Modulos", "Modulo")
+                        .WithMany("Lecturas")
+                        .HasForeignKey("Id_Modulo")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Modulo");
+                });
+
+            modelBuilder.Entity("RiegoWeb.Api.Models.Modulos", b =>
+                {
+                    b.HasOne("RiegoWeb.Api.Models.User", "User")
+                        .WithMany("Modulos")
+                        .HasForeignKey("Id_User")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("RiegoWeb.Api.Models.Modulos", b =>
+                {
+                    b.Navigation("Lecturas");
+                });
+
+            modelBuilder.Entity("RiegoWeb.Api.Models.User", b =>
+                {
+                    b.Navigation("Modulos");
                 });
 #pragma warning restore 612, 618
         }

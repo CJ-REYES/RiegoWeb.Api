@@ -10,9 +10,10 @@ namespace RiegoWeb.Api.Models
     public class LecturaModulo
     {
         [Key]
-        public int id {get ; set;}
-        [ForeignKey("Id")]// de modulos
-        public int id_Modulo {get; set;} // es la id del modelo modulo
+        public int Id_Historial {get ; set;}
+        [ForeignKey("Id_Modulo")]// de modulos
+        public int Id_Modulo {get; set;} // es la id del modelo modulo
+        public Modulos Modulo { get; set; }
         public required string Temperatura { get; set; }
         public required string Humedad { get; set; }
         public required string LuzNivel { get; set; }
