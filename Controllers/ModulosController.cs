@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RiegoWeb.Api.Data;
 using RiegoWeb.Api.Models;
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
 namespace RiegoWeb.Api.Controllers
@@ -212,6 +213,66 @@ public async Task<ActionResult<Modulos>> CreateModulo(CreateModuloDTO moduloDTO)
                 }
             );
         }
+        // POST: api/Modulos/{idModule}/lecturas
+[HttpPost("{idModule}/lecturas")]
+public async Task<ActionResult<LecturaModuloDTO>> CreateLecturaModulo(int idModule, CreateLecturaModuloDTO lecturaDTO)
+{
+    // Verificar si el módulo existe
+    var modulo = await _context.Modulos.FindAsync(idModule);
+    if (modulo == null)
+    {
+        return NotFound($"No se encontró el módulo con ID {idModule}");
+    }
+
+    // Validar los datos de entrada
+    if (lecturaDTO == null)
+    {
+        return BadRequest("Los datos de la lectura no pueden ser nulos");
+    }
+
+    // Crear la nueva lectura
+    var lectura = new LecturaModulo
+    {
+        Id_Modulo = idModule,
+        Temperatura = lecturaDTO.Temperatura,
+        Humedad = lecturaDTO.Humedad,
+        NivelLux = lecturaDTO.NivelLux,
+        Date = lecturaDTO.Date ?? DateTime.Now // Usa la fecha actual si no se proporciona
+    };
+
+    // Guardar en la base de datos
+    _context.LecturaModulo.Add(lectura);
+    await _context.SaveChangesAsync();
+
+    // Retornar la lectura creada
+    return CreatedAtAction(
+        nameof(GetLectura),
+        new { idModule = idModule, idLectura = lectura.Id },
+        new LecturaModuloDTO
+        {
+            Id = lectura.Id,
+            Temperatura = lectura.Temperatura,
+            Humedad = lectura.Humedad,
+            NivelLux = lectura.NivelLux,
+            Date = lectura.Date
+        });
+}
+
+// DTO para crear lecturas
+public class CreateLecturaModuloDTO
+{
+     public int Id_Modulo { get; set; }
+    [Required]
+    public decimal Temperatura { get; set; }
+    
+    [Required]
+    public decimal Humedad { get; set; }
+    
+    [Required]
+    public int NivelLux { get; set; }
+    
+    public DateTime? Date { get; set; } // Opcional, si no se envía se usa la fecha actual
+}
 
         // DTOs
         public class ModuloDTO
