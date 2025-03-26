@@ -46,6 +46,8 @@ builder.Services.AddCors(options =>
 // Agregar servicios
 builder.Services.AddScoped<IAuthService, AuthService>();
 
+builder.Services.AddTransient<ModuloSeeder>();
+
 // Configurar JWT
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -71,6 +73,22 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var seeder = services.GetRequiredService<ModuloSeeder>();
+        seeder.Seed();
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "Error al ejecutar el seeder");
+    }
+}
+
 
 // Middleware global para capturar errores y evitar error 500 sin logs
 app.Use(async (context, next) =>
