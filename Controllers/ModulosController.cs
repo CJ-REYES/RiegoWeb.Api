@@ -26,10 +26,18 @@ namespace RiegoWeb.Api.Controllers
                 .Select(m => new ModuloDTO
                 {
                     Id_Modulo = m.Id_Modulo,
-                    Name = m.Name,
+                    Name = m.Name ?? string.Empty,
                     Id_User = m.Id_User,
                     Date = m.Date,
                     CreatedAt = m.CreatedAt,
+                    Lecturas = m.Lecturas.Select(l => new LecturaModuloDTO
+                    {
+                        Id = l.Id,
+                        Temperatura = l.Temperatura,
+                        Humedad = l.Humedad,
+                        NivelLux = l.NivelLux,
+                        Date = l.Date
+                    }).ToList()
                 })
                 .ToListAsync();
         }
@@ -47,7 +55,7 @@ namespace RiegoWeb.Api.Controllers
             return new ModuloDTO
             {
                 Id_Modulo = modulo.Id_Modulo,
-                Name = modulo.Name,
+                Name = modulo.Name ?? string.Empty,
                 Id_User = modulo.Id_User,
                 Date = modulo.Date,
                 CreatedAt = modulo.CreatedAt,
@@ -62,32 +70,55 @@ namespace RiegoWeb.Api.Controllers
             };
         }
 
-        // POST: api/Modulos
-        [HttpPost]
-        public async Task<ActionResult<Modulos>> CreateModulo(CreateModuloDTO moduloDTO)
+       [HttpPost]
+public async Task<ActionResult<Modulos>> CreateModulo(CreateModuloDTO moduloDTO)
+{
+    // Validar si se proporciona un Id_User
+    if (moduloDTO.Id_User.HasValue)
+    {
+        var userExists = await _context.Users.AnyAsync(u => u.Id == moduloDTO.Id_User.Value);
+        if (!userExists)
         {
-            var modulo = new Modulos
-            {
-                Name = moduloDTO.Name,
-                Id_User = moduloDTO.Id_User,
-                Date = DateTime.Now,
-                CreatedAt = DateTime.Now
-            };
-
-            _context.Modulos.Add(modulo);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetModulo), new { id = modulo.Id_Modulo }, modulo);
+            return BadRequest("El usuario especificado no existe");
         }
+    }
 
-        // PUT: api/Modulos/5
+    var modulo = new Modulos
+    {
+        Name = moduloDTO.Name ?? string.Empty,
+        Id_User = moduloDTO.Id_User, // Sin cast
+        Date = DateTime.Now,
+        CreatedAt = DateTime.Now
+    };
+
+    _context.Modulos.Add(modulo);
+    await _context.SaveChangesAsync();
+
+    return CreatedAtAction(nameof(GetModulo), new { id = modulo.Id_Modulo }, modulo);
+}
+
+        // PUT: api/Modulos/5 (Actualiza solo el nombre)
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateModulo(int id, UpdateModuloDTO updateDto)
+        public async Task<IActionResult> UpdateModuloName(int id, UpdateModuloNameDTO updateDto)
         {
             var modulo = await _context.Modulos.FindAsync(id);
             if (modulo == null) return NotFound();
 
-            modulo.Name = updateDto.Name;
+            modulo.Name = updateDto.Name ?? modulo.Name;
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        // PUT: api/Modulos/5/user (Actualiza nombre y asigna usuario)
+        [HttpPut("{id}/user")]
+        public async Task<IActionResult> UpdateModuloWithUser(int id, UpdateModuloWithUserDTO updateDto)
+        {
+            var modulo = await _context.Modulos.FindAsync(id);
+            if (modulo == null) return NotFound();
+
+            modulo.Name = updateDto.Name ?? modulo.Name;
+            modulo.Id_User = updateDto.Id_User;
             await _context.SaveChangesAsync();
 
             return NoContent();
@@ -107,7 +138,7 @@ namespace RiegoWeb.Api.Controllers
         }
 
         // GET: api/Modulos/{idModule}/lecturas
-        [HttpGet("{idModule}/lecturas")] // <-- Nombre del parámetro corregido (idModule)
+        [HttpGet("{idModule}/lecturas")]
         public async Task<ActionResult<IEnumerable<LecturaModuloDTO>>> GetLecturas(int idModule)
         {
             var lecturas = await _context.LecturaModulo
@@ -128,7 +159,7 @@ namespace RiegoWeb.Api.Controllers
         }
 
         // GET: api/Modulos/{idModule}/lecturas/{idLectura}
-        [HttpGet("{idModule}/lecturas/{idLectura}")] // <-- Parámetros corregidos
+        [HttpGet("{idModule}/lecturas/{idLectura}")]
         public async Task<ActionResult<LecturaModuloDTO>> GetLectura(int idModule, int idLectura)
         {
             var lectura = await _context.LecturaModulo
@@ -186,22 +217,28 @@ namespace RiegoWeb.Api.Controllers
         public class ModuloDTO
         {
             public int Id_Modulo { get; set; }
-            public string Name { get; set; }
-            public int Id_User { get; set; }
+            public string Name { get; set; } = string.Empty;
+            public int? Id_User { get; set; }
             public DateTime Date { get; set; }
             public DateTime CreatedAt { get; set; }
-            public List<LecturaModuloDTO> Lecturas { get; set; }
+            public List<LecturaModuloDTO> Lecturas { get; set; } = new List<LecturaModuloDTO>();
         }
 
         public class CreateModuloDTO
         {
-            public string Name { get; set; }
-            public int Id_User { get; set; }
+            public string Name { get; set; } = string.Empty;
+            public int? Id_User { get; set; }
         }
 
-        public class UpdateModuloDTO
+        public class UpdateModuloNameDTO
         {
-            public string Name { get; set; }
+            public string Name { get; set; } = string.Empty;
+        }
+
+        public class UpdateModuloWithUserDTO
+        {
+            public string Name { get; set; } = string.Empty;
+            public int Id_User { get; set; }
         }
 
         public class LecturaModuloDTO

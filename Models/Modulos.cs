@@ -16,7 +16,7 @@ namespace RiegoWeb.Api.Models
     public string Name { get; set; }
     
     [ForeignKey("Id_User")]
-    public int Id_User { get; set; }
+    public int? Id_User { get; set; }
     public User User { get; set; }
 
     public DateTime Date { get; set; }
