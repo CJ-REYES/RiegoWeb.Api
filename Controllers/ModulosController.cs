@@ -213,17 +213,18 @@ public async Task<ActionResult<Modulos>> CreateModulo(CreateModuloDTO moduloDTO)
                 }
             );
         }
-        // POST: api/Modulos/{idModule}/lecturas
-[HttpPost("{idModule}/lecturas")]
-public async Task<ActionResult<LecturaModuloDTO>> CreateLecturaModulo(int idModule, CreateLecturaModuloDTO lecturaDTO)
+        
+// POST: api/Modulos/{idModule}/lecturas
+
+[HttpPost("/lecturas")]
+public async Task<ActionResult<LecturaModuloDTO>> CreateLecturaModulo( CreateLecturaModuloDTO lecturaDTO)
 {
-    // Verificar si el módulo existe
-    var modulo = await _context.Modulos.FindAsync(idModule);
+     // Verificar si el módulo existe
+    var modulo = await _context.Modulos.FindAsync(lecturaDTO.Id_Modulo);
     if (modulo == null)
     {
-        return NotFound($"No se encontró el módulo con ID {idModule}");
+        return NotFound($"No se encontró el módulo con ID {lecturaDTO.Id_Modulo}");
     }
-
     // Validar los datos de entrada
     if (lecturaDTO == null)
     {
@@ -233,11 +234,11 @@ public async Task<ActionResult<LecturaModuloDTO>> CreateLecturaModulo(int idModu
     // Crear la nueva lectura
     var lectura = new LecturaModulo
     {
-        Id_Modulo = idModule,
+        Id_Modulo = lecturaDTO.Id_Modulo, // Se usa el parámetro recibido en la URL
         Temperatura = lecturaDTO.Temperatura,
         Humedad = lecturaDTO.Humedad,
         NivelLux = lecturaDTO.NivelLux,
-        Date = lecturaDTO.Date ?? DateTime.Now // Usa la fecha actual si no se proporciona
+        Date = lecturaDTO.Date ?? DateTime.Now
     };
 
     // Guardar en la base de datos
@@ -246,17 +247,19 @@ public async Task<ActionResult<LecturaModuloDTO>> CreateLecturaModulo(int idModu
 
     // Retornar la lectura creada
     return CreatedAtAction(
-        nameof(GetLectura),
-        new { idModule = idModule, idLectura = lectura.Id },
-        new LecturaModuloDTO
-        {
-            Id = lectura.Id,
-            Temperatura = lectura.Temperatura,
-            Humedad = lectura.Humedad,
-            NivelLux = lectura.NivelLux,
-            Date = lectura.Date
-        });
+    nameof(GetLectura),
+    new { idModule = lectura.Id_Modulo, idLectura = lectura.Id },
+    new LecturaModuloDTO
+    {
+        Id = lectura.Id,
+        Temperatura = lectura.Temperatura,
+        Humedad = lectura.Humedad,
+        NivelLux = lectura.NivelLux,
+        Date = lectura.Date
+    });
+
 }
+
 
 // DTO para crear lecturas
 public class CreateLecturaModuloDTO
