@@ -216,29 +216,52 @@ public async Task<ActionResult<Modulos>> CreateModulo(CreateModuloDTO moduloDTO)
         
 // POST: api/Modulos/{idModule}/lecturas
 
-[HttpPost("/lecturas")]
-public async Task<ActionResult<LecturaModuloDTO>> CreateLecturaModulo( CreateLecturaModuloDTO lecturaDTO)
+[HttpPost("lecturas")]
+public async Task<ActionResult<LecturaModuloDTO>> CreateLecturaModulo(CreateLecturaModuloDTO lecturaDTO)
 {
-     // Verificar si el módulo existe
+    // Verificar si el módulo existe
     var modulo = await _context.Modulos.FindAsync(lecturaDTO.Id_Modulo);
     if (modulo == null)
     {
         return NotFound($"No se encontró el módulo con ID {lecturaDTO.Id_Modulo}");
     }
+
+    // Obtener la última lectura registrada del módulo
+    var ultimaLectura = await _context.LecturaModulo
+        .Where(l => l.Id_Modulo == lecturaDTO.Id_Modulo)
+        .OrderByDescending(l => l.Date)
+        .FirstOrDefaultAsync();
+
+    // Si hay una lectura previa, verificar si los datos son los mismos
+    if (ultimaLectura != null &&
+        ultimaLectura.Temperatura == lecturaDTO.Temperatura &&
+        ultimaLectura.Humedad == lecturaDTO.Humedad &&
+        ultimaLectura.NivelLux == lecturaDTO.NivelLux)
+    {
+        return Ok(new
+        {
+            message = "Lectura ya guardada recientemente",
+            Id = ultimaLectura.Id
+        });
+    }
+
     // Validar los datos de entrada
     if (lecturaDTO == null)
     {
         return BadRequest("Los datos de la lectura no pueden ser nulos");
     }
 
+    // Usar la fecha proporcionada o la fecha actual si no se envía
+    DateTime lecturaDate = lecturaDTO.Date ?? DateTime.Now;
+
     // Crear la nueva lectura
     var lectura = new LecturaModulo
     {
-        Id_Modulo = lecturaDTO.Id_Modulo, // Se usa el parámetro recibido en la URL
+        Id_Modulo = lecturaDTO.Id_Modulo,
         Temperatura = lecturaDTO.Temperatura,
         Humedad = lecturaDTO.Humedad,
         NivelLux = lecturaDTO.NivelLux,
-        Date = lecturaDTO.Date ?? DateTime.Now
+        Date = lecturaDate
     };
 
     // Guardar en la base de datos
@@ -246,21 +269,16 @@ public async Task<ActionResult<LecturaModuloDTO>> CreateLecturaModulo( CreateLec
     await _context.SaveChangesAsync();
 
     // Retornar la lectura creada
-    return CreatedAtAction(
-    nameof(GetLectura),
-    new { idModule = lectura.Id_Modulo, idLectura = lectura.Id },
-    new LecturaModuloDTO
-    {
-        Id = lectura.Id,
-        Temperatura = lectura.Temperatura,
-        Humedad = lectura.Humedad,
-        NivelLux = lectura.NivelLux,
-        Date = lectura.Date
-    });
-
+    return CreatedAtAction(nameof(GetLectura), new { idModule = lectura.Id_Modulo, idLectura = lectura.Id }, 
+        new LecturaModuloDTO
+        {
+            Id = lectura.Id,
+            Temperatura = lectura.Temperatura,
+            Humedad = lectura.Humedad,
+            NivelLux = lectura.NivelLux,
+            Date = lectura.Date
+        });
 }
-
-
 // DTO para crear lecturas
 public class CreateLecturaModuloDTO
 {
